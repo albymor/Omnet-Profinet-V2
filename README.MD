@@ -5,3 +5,5 @@ Per far compilare sta roba usando degli header da INET fare riferimrnto a
 Dubbi:
 
     - Come rigenero gli exe? se cancello gli exe nella cartella principale non funziona più nulla
+
+- gli ethertype sono in /inet/src/inet/common/ProtocolGroup.cc

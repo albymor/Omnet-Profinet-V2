@@ -20,6 +20,7 @@
 #include <math.h>
 
 #include "EthernetAppClient.h"
+#include "Profinet_m.h"
 
 #include "inet/applications/ethernet/EtherApp_m.h"
 #include "inet/common/ModuleAccess.h"
@@ -29,6 +30,8 @@
 #include "inet/linklayer/common/Ieee802SapTag_m.h"
 #include "inet/linklayer/common/MacAddressTag_m.h"
 #include "inet/networklayer/common/L3AddressResolver.h"
+#include "inet/common/ProtocolTag_m.h"
+#include "inet/common/Protocol.h"
 
 namespace inet {
 
@@ -160,10 +163,10 @@ void EthernetAppClient::sendPacket()
 
     char msgname[30];
     sprintf(msgname, "req-%d-%ld", getId(), seqNum);
-    EV_WARN << "Generating packet !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!`" << msgname << "'\n";
+    EV_INFO << "Generating packet!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! `" << msgname << "'\n";
 
-    Packet *datapacket = new Packet(msgname, IEEE802CTRL_DATA);
-    const auto& data = makeShared<EtherAppReq>();
+    Packet *datapacket = new Packet(msgname);
+    /*const auto& data = makeShared<EtherAppReq>();
 
     long len = *reqLength;
     data->setChunkLength(B(len));
@@ -174,12 +177,19 @@ void EthernetAppClient::sendPacket()
 
     data->addTag<CreationTimeTag>()->setCreationTime(simTime());
 
-    datapacket->insertAtBack(data);
+    datapacket->insertAtBack(data);*/
 
     datapacket->addTag<MacAddressReq>()->setDestAddress(destMacAddress);
-    auto ieee802SapReq = datapacket->addTag<Ieee802SapReq>();
+    /*auto ieee802SapReq = datapacket->addTag<Ieee802SapReq>();
     ieee802SapReq->setSsap(localSap);
-    ieee802SapReq->setDsap(remoteSap);
+    ieee802SapReq->setDsap(remoteSap);*/
+
+    datapacket->addTag<PacketProtocolTag>()->setProtocol(&Protocol::profinet);
+
+    auto rawBytesData = makeShared<BytesChunk>(); // 10 raw bytes
+    rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
+    datapacket->insertAtBack(rawBytesData);
+
 
     emit(packetSentSignal, datapacket);
     llcSocket.send(datapacket);
