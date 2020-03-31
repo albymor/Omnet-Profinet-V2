@@ -13,15 +13,11 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-//
-// TODO generated message class
-//
+package boh;
+import inet.networklayer.base.NetworkProtocolBase;
 
-import inet.common.INETDefs;
-import inet.common.packet.chunk.Chunk;
 
-class Profinet {
-    int someField;
-    string anotherField;
-    double arrayField2[10];
+simple Profinet extends NetworkProtocolBase{
+    @class(Profinet);
 }
+

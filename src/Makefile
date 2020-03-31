@@ -24,11 +24,10 @@ PROJECTRELATIVE_PATH = src
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/EthernetAppClient.o $O/Profinet_m.o
+OBJS = $O/EthernetAppClient.o $O/Profinet.o
 
 # Message files
-MSGFILES = \
-    Profinet.msg
+MSGFILES =
 
 # SM files
 SMFILES =
