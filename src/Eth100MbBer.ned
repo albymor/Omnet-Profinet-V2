@@ -14,14 +14,13 @@
 // 
 
 package boh;
-import inet.networklayer.base.NetworkProtocolBase;
+import inet.node.ethernet.EtherLink;
+import ned.DatarateChannel;
 
-module Profinet extends NetworkProtocolBase{
-   
-    parameters:
-        @signal[packetSent](type=inet::Packet);
-        string destAddress = default("");
-    
-     @class(Profinet);
+channel Eth100MbBer extends DatarateChannel
+{
+    double length @unit(m) = default(10m);
+    delay = replaceUnit(length / 2e8, "s");
+    ber = 0;
+    datarate = 100Mbps;
 }
-

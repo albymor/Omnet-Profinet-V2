@@ -23,6 +23,7 @@ import boh.EthernetHost;
 import inet.node.inet.StandardHost;
 import inet.applications.ethernet.EtherAppServer;
 import inet.applications.ethernet.EtherAppClient;
+import inet.node.ethernet.EtherHost;
 
 network VlanExample
 {
@@ -31,32 +32,38 @@ network VlanExample
             @display("p=100,100;is=s");
         }
         //host1: StandardHost {
-        //    @display("p=250,100");
+        //   @display("p=250,100");
         //}
-        //switch1: EtherSwitch {
-        //    @display("p=350,100");
-        //}
+        switch1: EtherSwitch {
+            @display("p=205,185");
+        }
         //switch2: EtherSwitch {
         //    @display("p=450,100");
         //}
-        host2: MyStandardHost {
-            @display("p=550,100");
-        }
-        tic: EthernetHost {
-            @display("p=289,231");
-        }
-
-        //toc: EthernetHost {
-        //    @display("p=469,231");
+        //host2: MyStandardHost {
+        //    @display("p=550,100");
         //}
+        tic: EthernetHost {
+            @display("p=131,186");
+        }
+        toc: EthernetHost {
+            @display("p=469,231");
+        }
+        tac: EthernetHost {
+            @display("p=469,82");
+        }
+        switch2: EtherSwitch {
+            @display("p=400,230");
+        }
+        switch3: EtherSwitch {
+            @display("p=400,81");
+        }
     connections:
         //host1.ethg++ <--> Eth100M <--> switch1.ethg++;
-        //tic.ethg <--> Eth100M <--> switch1.ethg++;
-        //host2.ethg++ <--> Eth100M <--> switch2.ethg++;
-        //switch1.ethg++ <--> Eth100M <--> switch2.ethg++;
-        //toc.ethg <--> Eth100M <--> switch2.ethg++;
-        
-        
-        
-        tic.ethg <--> Eth100M <--> host2.ethg++;
+        tic.ethg <--> Eth100M <--> switch1.ethg++;
+        toc.ethg <--> Eth100M <--> switch2.ethg++;
+        tac.ethg <--> Eth100M <--> switch3.ethg++;
+
+        switch2.ethg++ <--> Eth100M <--> switch1.ethg++;
+        switch2.ethg++ <--> Eth100MbBer <--> switch3.ethg++;
 }

@@ -19,9 +19,11 @@ import boh.EthernetAppClient;
 import inet.applications.ethernet.EtherAppServer;
 import inet.common.MessageDispatcher;
 import inet.common.lifecycle.NodeStatus;
+import inet.common.packet.recorder.PcapRecorder;
 import inet.linklayer.contract.IEthernetInterface;
 import inet.linklayer.ethernet.EtherEncap;
 import inet.networklayer.common.InterfaceTable;
+import boh.Profinet;
 
 
 //
@@ -74,6 +76,13 @@ module EthernetHost
             parameters:
                 @display("p=350,336,row,150;q=txQueue");
         }
+        profin: Profinet {
+            parameters:
+                @display("p=350,100");
+        }
+        pcapRecorder: PcapRecorder {
+            @display("p=96,339");
+        }
     connections:
         cli.out --> dp.in++;
         dp.out++ --> cli.in;
@@ -82,6 +91,12 @@ module EthernetHost
 
         dp.out++ --> llc.upperLayerIn;
         llc.upperLayerOut --> dp.in++;
+
+        dp.out++ --> profin.transportIn;
+        profin.transportOut --> dp.in++;
+
+        dp.out++ --> profin.queueIn;
+        profin.queueOut --> dp.in++;
 
         llc.lowerLayerOut --> eth.upperLayerIn;
         eth.upperLayerOut --> llc.lowerLayerIn;

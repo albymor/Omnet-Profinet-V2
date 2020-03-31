@@ -14,20 +14,7 @@
 // 
 
 #include "Profinet.h"
-#include "inet/common/Protocol.h"
-#include "inet/common/lifecycle/OperationalBase.h"
-#include "inet/common/IProtocolRegistrationListener.h"
 
-#include "inet/applications/common/SocketTag_m.h"
-#include "inet/common/INETUtils.h"
-#include "inet/common/ModuleAccess.h"
-#include "inet/common/ProtocolGroup.h"
-#include "inet/common/ProtocolTag_m.h"
-#include "inet/common/packet/Message.h"
-#include "inet/linklayer/common/InterfaceTag_m.h"
-#include "inet/networklayer/base/NetworkProtocolBase.h"
-#include "inet/networklayer/common/L3AddressTag_m.h"
-#include "inet/networklayer/contract/L3SocketCommand_m.h"
 
 
 
@@ -42,12 +29,13 @@ void Profinet::initialize(int stage)
 {
 
     LayeredProtocolBase::initialize(stage);
-        if (stage == inet::INITSTAGE_LOCAL)
-            interfaceTable = inet::getModuleFromPar<inet::IInterfaceTable>(par("interfaceTableModule"), this);
-        else if (stage == inet::INITSTAGE_NETWORK_LAYER) {
-            registerService(inet::Protocol::profinet, gate("transportIn"), gate("queueIn"));
-            registerProtocol(inet::Protocol::profinet, gate("queueOut"), gate("transportOut"));
-        }
+    if (stage == inet::INITSTAGE_LOCAL)
+        interfaceTable = inet::getModuleFromPar<inet::IInterfaceTable>(par("interfaceTableModule"), this);
+    else if (stage == inet::INITSTAGE_NETWORK_LAYER) {
+        registerService(inet::Protocol::profinet, nullptr, gate("queueIn"));
+        registerProtocol(inet::Protocol::profinet, gate("queueOut"), nullptr);
+    }
+    llcSocket.setOutputGate(gate("transportOut"));
 }
 
 void Profinet::handleStartOperation(inet::LifecycleOperation *operation){
@@ -63,6 +51,40 @@ const inet::Protocol& Profinet::getProtocol() const{
     return inet::Protocol::profinet;
 }
 
+
+void Profinet::handleLowerPacket(inet::Packet *packet){
+    EV_INFO << "Got Profinet packet" << packet->getName() << "'\n";
+
+    llcSocket.open(-1, -1);
+
+    inet::MacAddress destMacAddress;
+    const char *destAddress = par("destAddress");
+    if (destAddress[0]) {
+        if (!destMacAddress.tryParse(destAddress))
+            destMacAddress = inet::L3AddressResolver().resolve(destAddress, inet::L3AddressResolver::ADDR_MAC).toMac();
+    }
+    packet->addTagIfAbsent<inet::MacAddressReq>()->setDestAddress(destMacAddress);
+
+    inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
+    datapacket->addTag<inet::MacAddressReq>()->setDestAddress(destMacAddress);
+
+    datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
+
+    auto rawBytesData = inet::makeShared<inet::BytesChunk>(); // 10 raw bytes
+    rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
+    datapacket->insertAtBack(rawBytesData);
+
+
+    emit(inet::packetSentSignal, datapacket);
+    llcSocket.send(datapacket);
+
+    //sendDown(packet);
+
+}
+
+void Profinet::sendDown(inet::cMessage *message, int interfaceId){
+    send(message, "queueOut");
+}
 
 
 //}
