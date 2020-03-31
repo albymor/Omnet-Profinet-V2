@@ -23,6 +23,11 @@ import boh.EthernetHost;
 import inet.node.inet.StandardHost;
 import inet.applications.ethernet.EtherAppServer;
 import inet.applications.ethernet.EtherAppClient;
+import boh.ProfinetDevice;
+import inet.node.inet.WirelessHost;
+import inet.node.wireless.AccessPoint;
+import inet.physicallayer.common.packetlevel.RadioMedium;
+
 
 network VlanExample
 {
@@ -30,29 +35,20 @@ network VlanExample
         configurator: Ipv4NetworkConfigurator {
             @display("p=100,100;is=s");
         }
-        //host1: StandardHost {
-        //    @display("p=250,100");
-        //}
-        switch1: EtherSwitch {
-            @display("p=350,100");
+        profinetMaster: ProfinetDevice {
+            @display("p=249,313");
         }
-        switch2: EtherSwitch {
-            @display("p=450,100");
+        profinetDevice2: ProfinetDevice {
+            @display("p=500,331");
         }
-        //host2: StandardHost {
-        //    @display("p=550,100");
-        //}
-        tic: EthernetHost {
-            @display("p=289,231");
+        profinetDevice3: ProfinetDevice {
+            @display("p=550,117");
         }
-
-        toc: EthernetHost {
-            @display("p=469,231");
+        profinetDevice4: ProfinetDevice {
+            @display("p=550,274");
         }
     connections:
-        //host1.ethg++ <--> Eth100M <--> switch1.ethg++;
-        tic.ethg <--> Eth100M <--> switch1.ethg++;
-        //host2.ethg++ <--> Eth100M <--> switch2.ethg++;
-        switch1.ethg++ <--> Eth100M <--> switch2.ethg++;
-        toc.ethg <--> Eth100M <--> switch2.ethg++;
+        profinetDevice2.ethg++ <--> Eth100M <--> profinetMaster.ethg++;
+        profinetDevice3.ethg++ <--> Eth100M <--> profinetMaster.ethg++;
+        profinetDevice2.ethg++ <--> Eth100M <--> profinetDevice4.ethg++;
 }
