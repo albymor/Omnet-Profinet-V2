@@ -63,6 +63,9 @@ public:
     const inet::Protocol& getProtocol() const override;
     void handleLowerPacket(inet::Packet *packet) override;
     void sendDown(inet::cMessage *message, int interfaceId = -1) override;
+    inet::MacAddress resolveDestMacAddress(const char *destAddress);
+    void handleSelfMessage(inet::cMessage *message) override;
+    void genericSend(inet::MacAddress src, inet::MacAddress dest);
 };
 //}
 //}

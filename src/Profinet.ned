@@ -21,6 +21,8 @@ module Profinet extends NetworkProtocolBase{
     parameters:
         @signal[packetSent](type=inet::Packet);
         string destAddress = default("");
+        string srcAddress = default("");
+        bool bootstrap = default(false);
     
      @class(Profinet);
 }

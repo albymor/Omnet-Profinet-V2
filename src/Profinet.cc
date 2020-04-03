@@ -35,7 +35,17 @@ void Profinet::initialize(int stage)
         registerService(inet::Protocol::profinet, nullptr, gate("queueIn"));
         registerProtocol(inet::Protocol::profinet, gate("queueOut"), nullptr);
     }
-    llcSocket.setOutputGate(gate("transportOut"));
+    else if (stage == inet::INITSTAGE_LAST){
+        if (par("bootstrap")){
+            scheduleAt(inet::simTime(), new inet::cMessage);
+        }
+
+        llcSocket.setOutputGate(gate("transportOut"));
+        llcSocket.open(-1, 0xf0);
+    }
+
+
+
 }
 
 void Profinet::handleStartOperation(inet::LifecycleOperation *operation){
@@ -54,19 +64,20 @@ const inet::Protocol& Profinet::getProtocol() const{
 
 void Profinet::handleLowerPacket(inet::Packet *packet){
     EV_INFO << "Got Profinet packet" << packet->getName() << "'\n";
-
+/*
     llcSocket.open(-1, -1);
 
-    inet::MacAddress destMacAddress;
-    const char *destAddress = par("destAddress");
-    if (destAddress[0]) {
-        if (!destMacAddress.tryParse(destAddress))
-            destMacAddress = inet::L3AddressResolver().resolve(destAddress, inet::L3AddressResolver::ADDR_MAC).toMac();
-    }
+    inet::MacAddress destMacAddress = resolveDestMacAddress(par("destAddress"));
+
+
     packet->addTagIfAbsent<inet::MacAddressReq>()->setDestAddress(destMacAddress);
 
+    auto tags = packet-> getTags();
+
     inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
-    datapacket->addTag<inet::MacAddressReq>()->setDestAddress(destMacAddress);
+
+    auto mac = packet->getTag<inet::MacAddressReq>()->getSrcAddress();
+    datapacket->addTag<inet::MacAddressReq>()->setDestAddress(mac);
 
     datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
 
@@ -79,11 +90,49 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     llcSocket.send(datapacket);
 
     //sendDown(packet);
-
+*/
 }
 
 void Profinet::sendDown(inet::cMessage *message, int interfaceId){
-    send(message, "queueOut");
+    //send(message, "queueOut");
+}
+
+inet::MacAddress Profinet::resolveDestMacAddress(const char *destAddress)
+{
+    inet::MacAddress destMacAddress;
+    //const char *destAddress = par("destAddress");
+    if (destAddress[0]) {
+        if (!destMacAddress.tryParse(destAddress))
+            destMacAddress = inet::L3AddressResolver().resolve(destAddress, inet::L3AddressResolver::ADDR_MAC).toMac();
+    }
+
+    return destMacAddress;
+}
+
+void Profinet::handleSelfMessage(inet::cMessage *message){
+    EV_INFO << "Got self message" << message->getName() << "'\n";
+    genericSend(resolveDestMacAddress(par("srcAddress")), resolveDestMacAddress(par("destAddress")));
+}
+
+void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
+
+
+    inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
+
+    datapacket->addTag<inet::MacAddressReq>()->setDestAddress(dest);
+    //datapacket->getTag<inet::MacAddressReq>()->setSrcAddress(src);
+
+    datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
+
+    auto rawBytesData = inet::makeShared<inet::BytesChunk>(); // 10 raw bytes
+    rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
+    datapacket->insertAtBack(rawBytesData);
+
+
+    //emit(inet::packetSentSignal, datapacket);
+    EV_INFO << "Sending profinet frame\n";
+    llcSocket.send(datapacket);
+
 }
 
 

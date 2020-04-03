@@ -22,5 +22,6 @@ channel Eth100MbBer extends DatarateChannel
     double length @unit(m) = default(10m);
     delay = replaceUnit(length / 2e8, "s");
     ber = 0;
-    datarate = 100Mbps;
+    per = 0;
+    datarate = 100Mbps;    
 }

@@ -26,6 +26,7 @@ import inet.applications.ethernet.EtherAppClient;
 //
 simple EthernetAppClient extends EtherAppClient
 {
-     @class(inet::EthernetAppClient);    
+     @class(inet::EthernetAppClient);
+         
 }
 

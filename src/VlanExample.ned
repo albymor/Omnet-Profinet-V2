@@ -35,7 +35,7 @@ network VlanExample
         //   @display("p=250,100");
         //}
         switch1: EtherSwitch {
-            @display("p=205,185");
+            @display("p=400,68");
         }
         //switch2: EtherSwitch {
         //    @display("p=450,100");
@@ -43,26 +43,26 @@ network VlanExample
         //host2: MyStandardHost {
         //    @display("p=550,100");
         //}
-        tic: EthernetHost {
-            @display("p=131,186");
+        host1: EthernetHost {
+            @display("p=481,69");
         }
-        toc: EthernetHost {
+        host2: EthernetHost {
             @display("p=469,231");
         }
-        tac: EthernetHost {
-            @display("p=469,82");
+        host3: EthernetHost {
+            @display("p=138,172");
         }
         switch2: EtherSwitch {
             @display("p=400,230");
         }
         switch3: EtherSwitch {
-            @display("p=400,81");
+            @display("p=210,171");
         }
     connections:
         //host1.ethg++ <--> Eth100M <--> switch1.ethg++;
-        tic.ethg <--> Eth100M <--> switch1.ethg++;
-        toc.ethg <--> Eth100M <--> switch2.ethg++;
-        tac.ethg <--> Eth100M <--> switch3.ethg++;
+        host1.ethg <--> Eth100M <--> switch1.ethg++;
+        host2.ethg <--> Eth100M <--> switch2.ethg++;
+        host3.ethg <--> Eth100M <--> switch3.ethg++;
 
         switch2.ethg++ <--> Eth100M <--> switch1.ethg++;
         switch2.ethg++ <--> Eth100MbBer <--> switch3.ethg++;
