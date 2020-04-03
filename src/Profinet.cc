@@ -14,6 +14,7 @@
 // 
 
 #include "Profinet.h"
+//#include <cstringtokenizer.h>
 
 
 
@@ -64,20 +65,11 @@ const inet::Protocol& Profinet::getProtocol() const{
 
 void Profinet::handleLowerPacket(inet::Packet *packet){
     EV_INFO << "Got Profinet packet" << packet->getName() << "'\n";
-/*
-    llcSocket.open(-1, -1);
-
-    inet::MacAddress destMacAddress = resolveDestMacAddress(par("destAddress"));
-
-
-    packet->addTagIfAbsent<inet::MacAddressReq>()->setDestAddress(destMacAddress);
-
-    auto tags = packet-> getTags();
 
     inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
 
-    auto mac = packet->getTag<inet::MacAddressReq>()->getSrcAddress();
-    datapacket->addTag<inet::MacAddressReq>()->setDestAddress(mac);
+    auto destMac = packet->getTag<inet::MacAddressInd>()->getSrcAddress();
+    datapacket->addTag<inet::MacAddressReq>()->setDestAddress(destMac);
 
     datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
 
@@ -90,7 +82,6 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     llcSocket.send(datapacket);
 
     //sendDown(packet);
-*/
 }
 
 void Profinet::sendDown(inet::cMessage *message, int interfaceId){
@@ -111,7 +102,10 @@ inet::MacAddress Profinet::resolveDestMacAddress(const char *destAddress)
 
 void Profinet::handleSelfMessage(inet::cMessage *message){
     EV_INFO << "Got self message" << message->getName() << "'\n";
-    genericSend(resolveDestMacAddress(par("srcAddress")), resolveDestMacAddress(par("destAddress")));
+
+     inet::cStringTokenizer tokenizer(par("destAddress"));
+     while (tokenizer.hasMoreTokens())
+         genericSend(resolveDestMacAddress(par("srcAddress")), resolveDestMacAddress(tokenizer.nextToken()));
 }
 
 void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
@@ -120,7 +114,7 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
     inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
 
     datapacket->addTag<inet::MacAddressReq>()->setDestAddress(dest);
-    //datapacket->getTag<inet::MacAddressReq>()->setSrcAddress(src);
+    datapacket->getTag<inet::MacAddressReq>()->setSrcAddress(src);
 
     datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
 
