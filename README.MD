@@ -7,3 +7,4 @@ Dubbi:
     - Come rigenero gli exe? se cancello gli exe nella cartella principale non funziona più nulla
 
 - gli ethertype sono in /inet/src/inet/common/ProtocolGroup.cc
+- per compilare con i messaggi custom bisogna aggingere `MSGC:=$(MSGC) --msg6` in  `project` | `Properties`, select `OMNeT++` | `Makemake` | src folder | `Options...` | `Custom`. Fare riferimento a https://stackoverflow.com/questions/56005709/try-to-create-new-project-with-inet-reference-got-unexpected-name-expecting

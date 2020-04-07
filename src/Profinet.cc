@@ -14,6 +14,8 @@
 // 
 
 #include "Profinet.h"
+#include "ProfinetFrame_m.h"
+
 //#include <cstringtokenizer.h>
 
 
@@ -66,20 +68,34 @@ const inet::Protocol& Profinet::getProtocol() const{
 void Profinet::handleLowerPacket(inet::Packet *packet){
     EV_INFO << "Got Profinet packet" << packet->getName() << "'\n";
 
-    inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
+
+
+    char msgname[30];
+    sprintf(msgname, "req-%d-%ld", getId(), seqNum);
+
+    EV_INFO << "Generating Profinet packet" << msgname << "'\n";
+
+    inet::Packet *datapacket = new inet::Packet(msgname, inet::IEEE802CTRL_DATA);
 
     auto destMac = packet->getTag<inet::MacAddressInd>()->getSrcAddress();
     datapacket->addTag<inet::MacAddressReq>()->setDestAddress(destMac);
 
     datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
 
-    auto rawBytesData = inet::makeShared<inet::BytesChunk>(); // 10 raw bytes
-    rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
-    datapacket->insertAtBack(rawBytesData);
+    auto frame = inet::makeShared<ProfinetFrame>(); // 10 raw bytes
+    frame->setVlan(0xC000);
+    frame->setEtherType(0x8892);
+    frame->setFrameId(0x8000);
+    frame->setCycleCounter(seqNum);
+    frame->setDataStatus(0x3500);
+    frame->setChunkLength(inet::B(50));
+    datapacket->insertAtBack(frame);
 
 
     emit(inet::packetSentSignal, datapacket);
     llcSocket.send(datapacket);
+
+    seqNum++;
 
     //sendDown(packet);
 }
@@ -111,21 +127,41 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
 void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
 
 
-    inet::Packet *datapacket = new inet::Packet("Profi", inet::IEEE802CTRL_DATA);
+
+
+    char msgname[30];
+    sprintf(msgname, "req-%d-%ld", getId(), seqNum);
+
+    EV_INFO << "Generating Profinet packet" << msgname << "'\n";
+
+    inet::Packet *datapacket = new inet::Packet(msgname, inet::IEEE802CTRL_DATA);;
 
     datapacket->addTag<inet::MacAddressReq>()->setDestAddress(dest);
     datapacket->getTag<inet::MacAddressReq>()->setSrcAddress(src);
 
     datapacket->addTag<inet::PacketProtocolTag>()->setProtocol(&inet::Protocol::profinet);
 
-    auto rawBytesData = inet::makeShared<inet::BytesChunk>(); // 10 raw bytes
-    rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
-    datapacket->insertAtBack(rawBytesData);
+    //ProfinetFrame frame = ProfinetFrame(msgname);
+
+
+
+
+    auto frame = inet::makeShared<ProfinetFrame>(); // 10 raw bytes
+    frame->setVlan(0xC000);
+    frame->setEtherType(0x8892);
+    frame->setFrameId(0x8000);
+    frame->setCycleCounter(seqNum);
+    frame->setDataStatus(0x3500);
+    frame->setChunkLength(inet::B(50));
+    //rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
+    datapacket->insertAtBack(frame);
 
 
     //emit(inet::packetSentSignal, datapacket);
     EV_INFO << "Sending profinet frame\n";
     llcSocket.send(datapacket);
+
+    seqNum++;
 
 }
 
