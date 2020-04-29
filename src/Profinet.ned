@@ -23,6 +23,7 @@ module Profinet extends NetworkProtocolBase{
         string destAddress = default("");
         string srcAddress = default("");
         bool bootstrap = default(false);
+        int sendTime = default(1000); //tempo inter-frame in us
     
      @class(Profinet);
 }

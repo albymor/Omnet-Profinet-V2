@@ -40,12 +40,14 @@ void Profinet::initialize(int stage)
     }
     else if (stage == inet::INITSTAGE_LAST){
         if (par("bootstrap")){
-            scheduleAt(inet::simTime(), new inet::cMessage);
+            tokenizer = inet::cStringTokenizer(par("destAddress"));  //faccio il parse dei MAC degli slave
+            bootstarpSelfMsg = new inet::cMessage("bootstarpSelfMsg");
+            scheduleAt(inet::simTime(), bootstarpSelfMsg);
         }
 
         /*Schedulazione del del self message per l'incremento del contatore*/
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
-        timer = timer = new inet::cMessage("timer");
+        timer = new inet::cMessage("timer");
         scheduleAt(timeout, timer);
 
 
@@ -129,14 +131,31 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
         EV_INFO << "!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*Increment sequence number" << message->getName() << "'\n";
         seqNum++;
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
-        timer = timer = new inet::cMessage("timer");
+        timer = new inet::cMessage("timer");
         scheduleAt(timeout, timer);
         return;
     }
 
-     inet::cStringTokenizer tokenizer(par("destAddress"));
-     while (tokenizer.hasMoreTokens())
-         genericSend(resolveDestMacAddress(par("srcAddress")), resolveDestMacAddress(tokenizer.nextToken()));
+    if (message == bootstarpSelfMsg){
+
+        EV_INFO << "----------------------- bootstrap" << message->getName() << "'\n";
+
+
+        /*invio il messaggio se ci sono MAC disponibili*/
+        if (tokenizer.hasMoreTokens()){
+             genericSend(resolveDestMacAddress(par("srcAddress")), resolveDestMacAddress(tokenizer.nextToken()));
+        }
+
+        /*Ho inviato il messaggio: ora controllo se ne rimangono altri e in tal caso schedulo l'invio del messaggio successivo*/
+        if (tokenizer.hasMoreTokens()){
+            bootstarpSelfMsg = new inet::cMessage("bootstarpSelfMsg");
+            scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), bootstarpSelfMsg);
+        }
+
+    }
+
+
+
 }
 
 void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){

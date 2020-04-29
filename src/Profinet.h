@@ -57,6 +57,9 @@ protected:
     long seqNum = 0;
     inet::simtime_t timeout;
     inet::cMessage * timer;
+    inet::cStringTokenizer tokenizer = inet::cStringTokenizer(nullptr);
+    inet::cMessage * bootstarpSelfMsg;
+
 
 public:
     virtual void initialize(int stage) override;
