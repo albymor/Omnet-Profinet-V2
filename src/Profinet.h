@@ -47,6 +47,9 @@
 #include "inet/linklayer/ieee8022/Ieee8022LlcSocket.h"
 #include "inet/linklayer/ieee8022/Ieee8022LlcSocketCommand_m.h"
 
+//#include <queue>
+//#include <cqueue.h>
+
 //namespace inet {
 //namespace profinet {
 
@@ -59,6 +62,8 @@ protected:
     inet::cMessage * timer;
     inet::cStringTokenizer tokenizer = inet::cStringTokenizer(nullptr);
     inet::cMessage * bootstarpSelfMsg;
+    inet::cQueue queue;
+
 
 
 public:

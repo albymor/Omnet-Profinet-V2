@@ -99,9 +99,13 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     frame->setChunkLength(inet::B(50));
     datapacket->insertAtBack(frame);
 
+    queue.insert(datapacket);
 
-    emit(inet::packetSentSignal, datapacket);
-    llcSocket.send(datapacket);
+    scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
+
+
+    //emit(inet::packetSentSignal, datapacket);
+    //llcSocket.send(datapacket);
 
     //seqNum++;
 
@@ -151,7 +155,15 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
             bootstarpSelfMsg = new inet::cMessage("bootstarpSelfMsg");
             scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), bootstarpSelfMsg);
         }
+        return;
+    }
 
+    //if (message->getName() == "sendProfiPacket")
+    {
+        EV_INFO << "************************** sendProfiPacket" << message->getName() << "'\n";
+        inet::Packet *datapacket = (inet::Packet *)queue.pop();
+        emit(inet::packetSentSignal, datapacket);
+        llcSocket.send(datapacket);
     }
 
 
