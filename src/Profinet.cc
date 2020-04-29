@@ -43,6 +43,12 @@ void Profinet::initialize(int stage)
             scheduleAt(inet::simTime(), new inet::cMessage);
         }
 
+        /*Schedulazione del del self message per l'incremento del contatore*/
+        timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
+        timer = timer = new inet::cMessage("timer");
+        scheduleAt(timeout, timer);
+
+
         llcSocket.setOutputGate(gate("transportOut"));
         llcSocket.open(-1, 0xf0);
     }
@@ -95,7 +101,7 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     emit(inet::packetSentSignal, datapacket);
     llcSocket.send(datapacket);
 
-    seqNum++;
+    //seqNum++;
 
     //sendDown(packet);
 }
@@ -118,6 +124,15 @@ inet::MacAddress Profinet::resolveDestMacAddress(const char *destAddress)
 
 void Profinet::handleSelfMessage(inet::cMessage *message){
     EV_INFO << "Got self message" << message->getName() << "'\n";
+
+    if(message == timer){
+        EV_INFO << "!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*Increment sequence number" << message->getName() << "'\n";
+        seqNum++;
+        timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
+        timer = timer = new inet::cMessage("timer");
+        scheduleAt(timeout, timer);
+        return;
+    }
 
      inet::cStringTokenizer tokenizer(par("destAddress"));
      while (tokenizer.hasMoreTokens())
@@ -161,7 +176,7 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
     EV_INFO << "Sending profinet frame\n";
     llcSocket.send(datapacket);
 
-    seqNum++;
+    //seqNum++;
 
 }
 

@@ -55,6 +55,8 @@ class Profinet : public inet::NetworkProtocolBase {
 protected:
     inet::Ieee8022LlcSocket llcSocket;
     long seqNum = 0;
+    inet::simtime_t timeout;
+    inet::cMessage * timer;
 
 public:
     virtual void initialize(int stage) override;
