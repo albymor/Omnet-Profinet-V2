@@ -101,7 +101,7 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
 
     queue.insert(datapacket);
 
-    scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
+    scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000*2, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
 
 
     //emit(inet::packetSentSignal, datapacket);
