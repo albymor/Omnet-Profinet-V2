@@ -23,7 +23,8 @@ module Profinet extends NetworkProtocolBase{
         string destAddress = default("");
         string srcAddress = default("");
         bool bootstrap = default(false);
-        int sendTime = default(1000); //tempo inter-frame in us
+        int sendTime = default(1000); //tempo inter-frame in us. DEVE ESSERE UN MULTIPLO DI 31.25us
+        bool isMaster = default(false); // indica se il device è un master
     
      @class(Profinet);
 }

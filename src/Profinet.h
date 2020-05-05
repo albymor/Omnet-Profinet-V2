@@ -64,6 +64,9 @@ protected:
     inet::cMessage * bootstarpSelfMsg;
     inet::cQueue queue;
 
+private:
+    bool isMasterSendScheduled();
+
 
 
 public:

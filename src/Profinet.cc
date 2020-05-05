@@ -101,7 +101,13 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
 
     queue.insert(datapacket);
 
-    scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000*2, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
+    if(!(bool(par("isMaster")))){
+        // TODO: il *2 è il numero di device. serve per non far trasmettere più dispositivi nello stesso slot
+        scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
+        //scheduleAt(inet::simTime() + inet::SimTime(100, inet::SIMTIME_US), new inet::cMessage("sendProfiPacket"));
+    }
+
+
 
 
     //emit(inet::packetSentSignal, datapacket);
@@ -129,20 +135,19 @@ inet::MacAddress Profinet::resolveDestMacAddress(const char *destAddress)
 }
 
 void Profinet::handleSelfMessage(inet::cMessage *message){
-    EV_INFO << "Got self message" << message->getName() << "'\n";
+    EV_INFO << "Got self message " << message->getName() << "'\n";
 
     if(message == timer){
-        EV_INFO << "!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*Increment sequence number" << message->getName() << "'\n";
+        EV_INFO << "!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*Increment sequence number " << message->getName() << "'\n";
         seqNum++;
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
         timer = new inet::cMessage("timer");
         scheduleAt(timeout, timer);
-        return;
     }
 
     if (message == bootstarpSelfMsg){
 
-        EV_INFO << "----------------------- bootstrap" << message->getName() << "'\n";
+        EV_INFO << "----------------------- bootstrap " << message->getName() << "'\n";
 
 
         /*invio il messaggio se ci sono MAC disponibili*/
@@ -153,17 +158,28 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
         /*Ho inviato il messaggio: ora controllo se ne rimangono altri e in tal caso schedulo l'invio del messaggio successivo*/
         if (tokenizer.hasMoreTokens()){
             bootstarpSelfMsg = new inet::cMessage("bootstarpSelfMsg");
-            scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), bootstarpSelfMsg);
+            //scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), bootstarpSelfMsg);
+            scheduleAt(inet::simTime() + inet::SimTime(500, inet::SIMTIME_NS), bootstarpSelfMsg);
         }
-        return;
     }
 
-    //if (message->getName() == "sendProfiPacket")
+    std::string msg = message->getName();
+
+    if (msg == "sendProfiPacket")
     {
-        EV_INFO << "************************** sendProfiPacket" << message->getName() << "'\n";
+        EV_INFO << "************************** sendProfiPacket " << message->getName() << "'\n";
         inet::Packet *datapacket = (inet::Packet *)queue.pop();
         emit(inet::packetSentSignal, datapacket);
         llcSocket.send(datapacket);
+    }
+
+    if(bool(par("isMaster")) && isMasterSendScheduled()){
+        EV_WARN << " Master send scheduled\n";
+        if(!queue.isEmpty()){
+            inet::Packet *datapacket = (inet::Packet *)queue.pop();
+            emit(inet::packetSentSignal, datapacket);
+            llcSocket.send(datapacket);
+        }
     }
 
 
@@ -209,6 +225,13 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
 
     //seqNum++;
 
+}
+
+bool Profinet::isMasterSendScheduled(){
+    // TODO: possibile bug con int
+    int mult = int(par("sendTime"))/31.25;
+
+    return ((seqNum % mult) == 0);
 }
 
 
