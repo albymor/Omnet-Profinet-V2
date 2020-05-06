@@ -60,9 +60,9 @@ network VlanExample
         }
     connections:
         //host1.ethg++ <--> Eth100M <--> switch1.ethg++;
-        host1.ethg <--> Eth100M <--> switch1.ethg++;
-        host2.ethg <--> Eth100M <--> switch2.ethg++;
-        host3.ethg <--> Eth100M <--> switch3.ethg++;
+        host1.ethg <--> Eth100M{length = 0;} <--> switch1.ethg++;
+        host2.ethg <--> Eth100M{length = 0;} <--> switch2.ethg++;
+        host3.ethg <--> Eth100M{length = 0;} <--> switch3.ethg++;
 
         switch2.ethg++ <--> Eth100M <--> switch1.ethg++;
         switch2.ethg++ <--> Eth100MbBer <--> switch3.ethg++;
