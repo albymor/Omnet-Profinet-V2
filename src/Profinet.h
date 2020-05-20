@@ -59,7 +59,7 @@ protected:
     inet::Ieee8022LlcSocket llcSocket;
     long cycleCounter = 0;
     inet::simtime_t timeout;
-    inet::cMessage * timer;
+    inet::cMessage * basicTickTimer;
     inet::cStringTokenizer tokenizer = inet::cStringTokenizer(nullptr);
     inet::cMessage * bootstarpSelfMsg;
     inet::cQueue queue;

@@ -47,8 +47,8 @@ void Profinet::initialize(int stage)
 
         /*Schedulazione del del self message per l'incremento del contatore*/
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
-        timer = new inet::cMessage("timer");
-        scheduleAt(timeout, timer);
+        basicTickTimer = new inet::cMessage("basicTickTimer");
+        scheduleAt(timeout, basicTickTimer);
 
 
         llcSocket.setOutputGate(gate("transportOut"));
@@ -138,12 +138,12 @@ inet::MacAddress Profinet::resolveDestMacAddress(const char *destAddress)
 void Profinet::handleSelfMessage(inet::cMessage *message){
     EV_INFO << "Got self message " << message->getName() << "'\n";
 
-    if(message == timer){
-        EV_INFO << "!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*Increment sequence number " << message->getName() << "'\n";
-        cycleCounter++;
+    if(message == basicTickTimer){
+        EV_INFO << "Self Message: Increment cycle counter " << message->getName() << "'\n";
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
-        timer = new inet::cMessage("timer");
-        scheduleAt(timeout, timer);
+        basicTickTimer = new inet::cMessage("basicTickTimer");
+        scheduleAt(timeout, basicTickTimer);
+        cycleCounter++;
     }
 
     if (message == bootstarpSelfMsg){
