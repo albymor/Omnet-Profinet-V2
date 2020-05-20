@@ -35,7 +35,8 @@ void ProfinetPacketSerializer::serialize(inet::MemoryOutputStream& stream, const
 
     }
     stream.writeUint16Be(applicationPacket->getCycleCounter());
-    stream.writeUint16Be(applicationPacket->getDataStatus());
+    stream.writeUint8(applicationPacket->getDataStatus());
+    stream.writeUint8(applicationPacket->getTransferStatus());
 }
 
 const inet::Ptr<inet::Chunk> ProfinetPacketSerializer::deserialize(inet::MemoryInputStream& stream) const
@@ -50,6 +51,7 @@ const inet::Ptr<inet::Chunk> ProfinetPacketSerializer::deserialize(inet::MemoryI
         applicationPacket->setData(i, stream.readUint8());
     }
     applicationPacket->setCycleCounter(stream.readUint16Be());
-    applicationPacket->setDataStatus(stream.readUint16Be());
+    applicationPacket->setDataStatus(stream.readUint8());
+    applicationPacket->setTransferStatus(stream.readUint8());
     return applicationPacket;
 }

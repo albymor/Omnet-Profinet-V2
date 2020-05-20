@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for $(LIB_PREFIX)boh
 #
 # This file was generated with the command:
-#  opp_makemake --make-so -f --deep -pINET -KINET_PROJ=../../inet -DINET_IMPORT -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
+#  opp_makemake --make-so -f --deep -pINET -KINET_PROJ=/home/amorato/omnetpp-5.6/samples/inet -DINET_IMPORT -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
 #
 
 # Name of target to be created (-o option)
@@ -34,7 +34,7 @@ MSGFILES = \
 SMFILES =
 
 # Other makefile variables (-K)
-INET_PROJ=../../inet
+INET_PROJ=/home/amorato/omnetpp-5.6/samples/inet
 
 #------------------------------------------------------------------------------
 

@@ -46,7 +46,8 @@ class ProfinetFrame;
  *     uint16_t FrameId;
  *     uint8_t Data[40];
  *     uint16_t CycleCounter;
- *     uint16_t DataStatus;
+ *     uint8_t DataStatus;
+ *     uint8_t TransferStatus;
  * }
  * </pre>
  */
@@ -58,7 +59,8 @@ class INET_API ProfinetFrame : public ::inet::FieldsChunk
     uint16_t FrameId = 0;
     uint8_t Data[40] = {0};
     uint16_t CycleCounter = 0;
-    uint16_t DataStatus = 0;
+    uint8_t DataStatus = 0;
+    uint8_t TransferStatus = 0;
 
   private:
     void copy(const ProfinetFrame& other);
@@ -88,8 +90,10 @@ class INET_API ProfinetFrame : public ::inet::FieldsChunk
     virtual void setData(size_t k, uint8_t Data);
     virtual uint16_t getCycleCounter() const;
     virtual void setCycleCounter(uint16_t CycleCounter);
-    virtual uint16_t getDataStatus() const;
-    virtual void setDataStatus(uint16_t DataStatus);
+    virtual uint8_t getDataStatus() const;
+    virtual void setDataStatus(uint8_t DataStatus);
+    virtual uint8_t getTransferStatus() const;
+    virtual void setTransferStatus(uint8_t TransferStatus);
 };
 
 inline void doParsimPacking(omnetpp::cCommBuffer *b, const ProfinetFrame& obj) {obj.parsimPack(b);}

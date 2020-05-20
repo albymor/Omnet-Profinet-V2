@@ -27,5 +27,6 @@ class ProfinetFrame extends inet::FieldsChunk{
     uint16_t FrameId;
     uint8_t Data[40];
     uint16_t CycleCounter;
-    uint16_t DataStatus;
+    uint8_t DataStatus;
+    uint8_t TransferStatus;
 }

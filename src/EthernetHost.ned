@@ -61,7 +61,7 @@ module EthernetHost
         }
         srv: EtherAppServer {
             parameters:
-                @display("p=450,100");
+                @display("p=200,100");
         }
         dp: MessageDispatcher {
             parameters:

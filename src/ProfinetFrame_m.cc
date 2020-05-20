@@ -239,6 +239,7 @@ void ProfinetFrame::copy(const ProfinetFrame& other)
     }
     this->CycleCounter = other.CycleCounter;
     this->DataStatus = other.DataStatus;
+    this->TransferStatus = other.TransferStatus;
 }
 
 void ProfinetFrame::parsimPack(omnetpp::cCommBuffer *b) const
@@ -250,6 +251,7 @@ void ProfinetFrame::parsimPack(omnetpp::cCommBuffer *b) const
     doParsimArrayPacking(b,this->Data,40);
     doParsimPacking(b,this->CycleCounter);
     doParsimPacking(b,this->DataStatus);
+    doParsimPacking(b,this->TransferStatus);
 }
 
 void ProfinetFrame::parsimUnpack(omnetpp::cCommBuffer *b)
@@ -261,6 +263,7 @@ void ProfinetFrame::parsimUnpack(omnetpp::cCommBuffer *b)
     doParsimArrayUnpacking(b,this->Data,40);
     doParsimUnpacking(b,this->CycleCounter);
     doParsimUnpacking(b,this->DataStatus);
+    doParsimUnpacking(b,this->TransferStatus);
 }
 
 uint16_t ProfinetFrame::getVlan() const
@@ -325,15 +328,26 @@ void ProfinetFrame::setCycleCounter(uint16_t CycleCounter)
     this->CycleCounter = CycleCounter;
 }
 
-uint16_t ProfinetFrame::getDataStatus() const
+uint8_t ProfinetFrame::getDataStatus() const
 {
     return this->DataStatus;
 }
 
-void ProfinetFrame::setDataStatus(uint16_t DataStatus)
+void ProfinetFrame::setDataStatus(uint8_t DataStatus)
 {
     handleChange();
     this->DataStatus = DataStatus;
+}
+
+uint8_t ProfinetFrame::getTransferStatus() const
+{
+    return this->TransferStatus;
+}
+
+void ProfinetFrame::setTransferStatus(uint8_t TransferStatus)
+{
+    handleChange();
+    this->TransferStatus = TransferStatus;
 }
 
 class ProfinetFrameDescriptor : public omnetpp::cClassDescriptor
@@ -347,6 +361,7 @@ class ProfinetFrameDescriptor : public omnetpp::cClassDescriptor
         FIELD_Data,
         FIELD_CycleCounter,
         FIELD_DataStatus,
+        FIELD_TransferStatus,
     };
   public:
     ProfinetFrameDescriptor();
@@ -409,7 +424,7 @@ const char *ProfinetFrameDescriptor::getProperty(const char *propertyname) const
 int ProfinetFrameDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 6+basedesc->getFieldCount() : 6;
+    return basedesc ? 7+basedesc->getFieldCount() : 7;
 }
 
 unsigned int ProfinetFrameDescriptor::getFieldTypeFlags(int field) const
@@ -427,8 +442,9 @@ unsigned int ProfinetFrameDescriptor::getFieldTypeFlags(int field) const
         FD_ISARRAY | FD_ISEDITABLE,    // FIELD_Data
         FD_ISEDITABLE,    // FIELD_CycleCounter
         FD_ISEDITABLE,    // FIELD_DataStatus
+        FD_ISEDITABLE,    // FIELD_TransferStatus
     };
-    return (field >= 0 && field < 6) ? fieldTypeFlags[field] : 0;
+    return (field >= 0 && field < 7) ? fieldTypeFlags[field] : 0;
 }
 
 const char *ProfinetFrameDescriptor::getFieldName(int field) const
@@ -446,8 +462,9 @@ const char *ProfinetFrameDescriptor::getFieldName(int field) const
         "Data",
         "CycleCounter",
         "DataStatus",
+        "TransferStatus",
     };
-    return (field >= 0 && field < 6) ? fieldNames[field] : nullptr;
+    return (field >= 0 && field < 7) ? fieldNames[field] : nullptr;
 }
 
 int ProfinetFrameDescriptor::findField(const char *fieldName) const
@@ -460,6 +477,7 @@ int ProfinetFrameDescriptor::findField(const char *fieldName) const
     if (fieldName[0] == 'D' && strcmp(fieldName, "Data") == 0) return base+3;
     if (fieldName[0] == 'C' && strcmp(fieldName, "CycleCounter") == 0) return base+4;
     if (fieldName[0] == 'D' && strcmp(fieldName, "DataStatus") == 0) return base+5;
+    if (fieldName[0] == 'T' && strcmp(fieldName, "TransferStatus") == 0) return base+6;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
@@ -477,9 +495,10 @@ const char *ProfinetFrameDescriptor::getFieldTypeString(int field) const
         "uint16_t",    // FIELD_FrameId
         "uint8_t",    // FIELD_Data
         "uint16_t",    // FIELD_CycleCounter
-        "uint16_t",    // FIELD_DataStatus
+        "uint8_t",    // FIELD_DataStatus
+        "uint8_t",    // FIELD_TransferStatus
     };
-    return (field >= 0 && field < 6) ? fieldTypeStrings[field] : nullptr;
+    return (field >= 0 && field < 7) ? fieldTypeStrings[field] : nullptr;
 }
 
 const char **ProfinetFrameDescriptor::getFieldPropertyNames(int field) const
@@ -553,6 +572,7 @@ std::string ProfinetFrameDescriptor::getFieldValueAsString(void *object, int fie
         case FIELD_Data: return ulong2string(pp->getData(i));
         case FIELD_CycleCounter: return ulong2string(pp->getCycleCounter());
         case FIELD_DataStatus: return ulong2string(pp->getDataStatus());
+        case FIELD_TransferStatus: return ulong2string(pp->getTransferStatus());
         default: return "";
     }
 }
@@ -573,6 +593,7 @@ bool ProfinetFrameDescriptor::setFieldValueAsString(void *object, int field, int
         case FIELD_Data: pp->setData(i,string2ulong(value)); return true;
         case FIELD_CycleCounter: pp->setCycleCounter(string2ulong(value)); return true;
         case FIELD_DataStatus: pp->setDataStatus(string2ulong(value)); return true;
+        case FIELD_TransferStatus: pp->setTransferStatus(string2ulong(value)); return true;
         default: return false;
     }
 }

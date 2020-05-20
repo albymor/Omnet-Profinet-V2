@@ -95,14 +95,15 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     frame->setEtherType(0x8892);
     frame->setFrameId(0x8000);
     frame->setCycleCounter(seqNum);
-    frame->setDataStatus(0x3500);
+    frame->setDataStatus(0x35);
+    frame->setTransferStatus(0x00);
     frame->setChunkLength(inet::B(50));
     datapacket->insertAtBack(frame);
 
     queue.insert(datapacket);
 
     if(!(bool(par("isMaster")))){
-        // TODO: il *2 è il numero di device. serve per non far trasmettere più dispositivi nello stesso slot
+        // TODO: il *2 ï¿½ il numero di device. serve per non far trasmettere piï¿½ dispositivi nello stesso slot
         scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
         //scheduleAt(inet::simTime() + inet::SimTime(100, inet::SIMTIME_US), new inet::cMessage("sendProfiPacket"));
     }
@@ -208,12 +209,13 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
 
 
 
-    auto frame = inet::makeShared<ProfinetFrame>(); // 10 raw bytes
+    auto frame = inet::makeShared<ProfinetFrame>();
     frame->setVlan(0xC000);
     frame->setEtherType(0x8892);
     frame->setFrameId(0x8000);
     frame->setCycleCounter(seqNum);
-    frame->setDataStatus(0x3500);
+    frame->setDataStatus(0x35);
+    frame->setTransferStatus(0x00);
     frame->setChunkLength(inet::B(50));
     //rawBytesData->setBytes({0xC0, 0x00, 0x88, 0x92, 0x80 ,0x00 ,0x80 ,0x80 ,0x80 ,0x80 ,0x80 ,0x16 ,0xf0 ,0x00 ,0x00 ,0x80 ,0x80 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00, 0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x55 ,0x00 ,0x35, 0x00});
     datapacket->insertAtBack(frame);

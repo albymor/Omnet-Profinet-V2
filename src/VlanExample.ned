@@ -18,6 +18,7 @@ package boh;
 
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.ethernet.Eth100M;
+import inet.node.ethernet.Eth400G;
 import inet.node.ethernet.EtherSwitch;
 import boh.EthernetHost;
 import inet.node.inet.StandardHost;
@@ -27,6 +28,7 @@ import inet.node.ethernet.EtherHost;
 
 network VlanExample
 {
+    @display("bgb=614,338");
     submodules:
         configurator: Ipv4NetworkConfigurator {
             @display("p=100,100;is=s");
@@ -49,21 +51,21 @@ network VlanExample
         host2: EthernetHost {
             @display("p=469,231");
         }
-        host3: EthernetHost {
-            @display("p=138,172");
+        Controller_Host: EthernetHost {
+            @display("p=92,172");
         }
         switch2: EtherSwitch {
             @display("p=400,230");
         }
-        switch3: EtherSwitch {
+        Controller_Switch: EtherSwitch {
             @display("p=210,171");
         }
     connections:
         //host1.ethg++ <--> Eth100M <--> switch1.ethg++;
-        host1.ethg <--> Eth100M{length = 0;} <--> switch1.ethg++;
-        host2.ethg <--> Eth100M{length = 0;} <--> switch2.ethg++;
-        host3.ethg <--> Eth100M{length = 0;} <--> switch3.ethg++;
+        host1.ethg <--> Eth400G {  length = 1.2m; } <--> switch1.ethg++;
+        host2.ethg <--> Eth400G {  length = 1.2m; } <--> switch2.ethg++;
+        Controller_Host.ethg <--> Eth400G {  length = 1.2m; } <--> Controller_Switch.ethg++;
 
         switch2.ethg++ <--> Eth100M <--> switch1.ethg++;
-        switch2.ethg++ <--> Eth100MbBer <--> switch3.ethg++;
+        switch2.ethg++ <--> Eth100MbBer <--> Controller_Switch.ethg++;
 }
