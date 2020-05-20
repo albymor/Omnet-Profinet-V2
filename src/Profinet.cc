@@ -79,7 +79,7 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
 
 
     char msgname[30];
-    sprintf(msgname, "req-%d-%ld", getId(), seqNum);
+    sprintf(msgname, "req-%d-%ld", getId(), cycleCounter);
 
     EV_INFO << "Generating Profinet packet" << msgname << "'\n";
 
@@ -94,7 +94,7 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     frame->setVlan(0xC000);
     frame->setEtherType(0x8892);
     frame->setFrameId(0x8000);
-    frame->setCycleCounter(seqNum);
+    frame->setCycleCounter(cycleCounter);
     frame->setDataStatus(0x35);
     frame->setTransferStatus(0x00);
     frame->setChunkLength(inet::B(50));
@@ -114,7 +114,7 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     //emit(inet::packetSentSignal, datapacket);
     //llcSocket.send(datapacket);
 
-    //seqNum++;
+    //cycleCounter++;
 
     //sendDown(packet);
 }
@@ -140,7 +140,7 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
 
     if(message == timer){
         EV_INFO << "!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*Increment sequence number " << message->getName() << "'\n";
-        seqNum++;
+        cycleCounter++;
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
         timer = new inet::cMessage("timer");
         scheduleAt(timeout, timer);
@@ -193,7 +193,7 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
 
 
     char msgname[30];
-    sprintf(msgname, "req-%d-%ld", getId(), seqNum);
+    sprintf(msgname, "req-%d-%ld", getId(), cycleCounter);
 
     EV_INFO << "Generating Profinet packet" << msgname << "'\n";
 
@@ -213,7 +213,7 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
     frame->setVlan(0xC000);
     frame->setEtherType(0x8892);
     frame->setFrameId(0x8000);
-    frame->setCycleCounter(seqNum);
+    frame->setCycleCounter(cycleCounter);
     frame->setDataStatus(0x35);
     frame->setTransferStatus(0x00);
     frame->setChunkLength(inet::B(50));
@@ -225,7 +225,7 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
     EV_INFO << "Sending profinet frame\n";
     llcSocket.send(datapacket);
 
-    //seqNum++;
+    //cycleCounter++;
 
 }
 
@@ -233,7 +233,7 @@ bool Profinet::isMasterSendScheduled(){
     // TODO: possibile bug con int
     int mult = int(par("sendTime"))/31.25;
 
-    return ((seqNum % mult) == 0);
+    return ((cycleCounter % mult) == 0);
 }
 
 

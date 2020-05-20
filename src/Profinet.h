@@ -57,7 +57,7 @@ class Profinet : public inet::NetworkProtocolBase {
 
 protected:
     inet::Ieee8022LlcSocket llcSocket;
-    long seqNum = 0;
+    long cycleCounter = 0;
     inet::simtime_t timeout;
     inet::cMessage * timer;
     inet::cStringTokenizer tokenizer = inet::cStringTokenizer(nullptr);
