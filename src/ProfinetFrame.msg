@@ -13,20 +13,20 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package boh;
-
-import inet.applications.ethernet.EtherAppClient;
-
-
 //
-// A simple traffic generator for the Ethernet model and the 802.11 model,
-// and generally for any L2 model that accepts ~Ieee802SapReq tags on the
-// packets. It generates packets containing ~EtherAppReq chunks. It should
-// be connected directly to ~EtherEncap/~Ieee8022Llc.
+// TODO generated message class
 //
-simple EthernetAppClient extends EtherAppClient
-{
-     @class(inet::EthernetAppClient);
-         
+
+import inet.common.INETDefs;
+import inet.common.packet.chunk.Chunk;
+import inet.networklayer.contract.ipv4.Ipv4Address;
+
+class ProfinetFrame extends inet::FieldsChunk{
+    uint16_t Vlan;
+    uint16_t EtherType;
+    uint16_t FrameId;
+    uint8_t Data[40];
+    uint16_t CycleCounter;
+    uint8_t DataStatus;
+    uint8_t TransferStatus;
 }
-

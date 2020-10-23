@@ -13,15 +13,15 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-//
-// TODO generated message class
-//
+package boh;
+import inet.node.ethernet.EtherLink;
+import ned.DatarateChannel;
 
-import inet.common.INETDefs;
-import inet.common.packet.chunk.Chunk;
-
-class Profinet {
-    int someField;
-    string anotherField;
-    double arrayField2[10];
+channel Eth100MbBer extends DatarateChannel
+{
+    double length @unit(m) = default(10m);
+    delay = replaceUnit(length / 2e8, "s");
+    ber = 0;
+    per = 0;
+    datarate = 100Mbps;    
 }

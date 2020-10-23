@@ -13,20 +13,17 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package boh;
+#ifndef PROFINETPACKETSERIALIZER_H_
+#define PROFINETPACKETSERIALIZER_H_
 
-import inet.applications.ethernet.EtherAppClient;
+#include "inet/common/packet/serializer/FieldsChunkSerializer.h"
 
+class ProfinetPacketSerializer: public inet::FieldsChunkSerializer {
+    protected:
+        void serialize(inet::MemoryOutputStream& stream, const inet::Ptr<const inet::Chunk>& chunk) const override;
+        const inet::Ptr<inet::Chunk> deserialize(inet::MemoryInputStream& stream) const override;
+    public:
+        ProfinetPacketSerializer() : FieldsChunkSerializer() {}
+};
 
-//
-// A simple traffic generator for the Ethernet model and the 802.11 model,
-// and generally for any L2 model that accepts ~Ieee802SapReq tags on the
-// packets. It generates packets containing ~EtherAppReq chunks. It should
-// be connected directly to ~EtherEncap/~Ieee8022Llc.
-//
-simple EthernetAppClient extends EtherAppClient
-{
-     @class(inet::EthernetAppClient);
-         
-}
-
+#endif /* PROFINETPACKETSERIALIZER_H_ */

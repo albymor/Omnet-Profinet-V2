@@ -1,5 +1,5 @@
 //
-// Generated file, do not edit! Created by nedtool 5.6 from Profinet.msg.
+// Generated file, do not edit! Created by nedtool 5.6 from ProfinetFrame.msg.
 //
 
 // Disable warnings about unused variables, empty switch stmts, etc:
@@ -27,7 +27,7 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include "Profinet_m.h"
+#include "ProfinetFrame_m.h"
 
 namespace omnetpp {
 
@@ -206,98 +206,166 @@ inline std::ostream& operator<<(std::ostream& out, const std::vector<T,A>& vec)
     return out;
 }
 
-Profinet::Profinet()
+Register_Class(ProfinetFrame)
+
+ProfinetFrame::ProfinetFrame() : ::inet::FieldsChunk()
 {
 }
 
-Profinet::Profinet(const Profinet& other)
+ProfinetFrame::ProfinetFrame(const ProfinetFrame& other) : ::inet::FieldsChunk(other)
 {
     copy(other);
 }
 
-Profinet::~Profinet()
+ProfinetFrame::~ProfinetFrame()
 {
 }
 
-Profinet& Profinet::operator=(const Profinet& other)
+ProfinetFrame& ProfinetFrame::operator=(const ProfinetFrame& other)
 {
     if (this == &other) return *this;
+    ::inet::FieldsChunk::operator=(other);
     copy(other);
     return *this;
 }
 
-void Profinet::copy(const Profinet& other)
+void ProfinetFrame::copy(const ProfinetFrame& other)
 {
-    this->someField = other.someField;
-    this->anotherField = other.anotherField;
-    for (size_t i = 0; i < 10; i++) {
-        this->arrayField2[i] = other.arrayField2[i];
+    this->Vlan = other.Vlan;
+    this->EtherType = other.EtherType;
+    this->FrameId = other.FrameId;
+    for (size_t i = 0; i < 40; i++) {
+        this->Data[i] = other.Data[i];
     }
+    this->CycleCounter = other.CycleCounter;
+    this->DataStatus = other.DataStatus;
+    this->TransferStatus = other.TransferStatus;
 }
 
-void Profinet::parsimPack(omnetpp::cCommBuffer *b) const
+void ProfinetFrame::parsimPack(omnetpp::cCommBuffer *b) const
 {
-    doParsimPacking(b,this->someField);
-    doParsimPacking(b,this->anotherField);
-    doParsimArrayPacking(b,this->arrayField2,10);
+    ::inet::FieldsChunk::parsimPack(b);
+    doParsimPacking(b,this->Vlan);
+    doParsimPacking(b,this->EtherType);
+    doParsimPacking(b,this->FrameId);
+    doParsimArrayPacking(b,this->Data,40);
+    doParsimPacking(b,this->CycleCounter);
+    doParsimPacking(b,this->DataStatus);
+    doParsimPacking(b,this->TransferStatus);
 }
 
-void Profinet::parsimUnpack(omnetpp::cCommBuffer *b)
+void ProfinetFrame::parsimUnpack(omnetpp::cCommBuffer *b)
 {
-    doParsimUnpacking(b,this->someField);
-    doParsimUnpacking(b,this->anotherField);
-    doParsimArrayUnpacking(b,this->arrayField2,10);
+    ::inet::FieldsChunk::parsimUnpack(b);
+    doParsimUnpacking(b,this->Vlan);
+    doParsimUnpacking(b,this->EtherType);
+    doParsimUnpacking(b,this->FrameId);
+    doParsimArrayUnpacking(b,this->Data,40);
+    doParsimUnpacking(b,this->CycleCounter);
+    doParsimUnpacking(b,this->DataStatus);
+    doParsimUnpacking(b,this->TransferStatus);
 }
 
-int Profinet::getSomeField() const
+uint16_t ProfinetFrame::getVlan() const
 {
-    return this->someField;
+    return this->Vlan;
 }
 
-void Profinet::setSomeField(int someField)
+void ProfinetFrame::setVlan(uint16_t Vlan)
 {
-    this->someField = someField;
+    handleChange();
+    this->Vlan = Vlan;
 }
 
-const char * Profinet::getAnotherField() const
+uint16_t ProfinetFrame::getEtherType() const
 {
-    return this->anotherField.c_str();
+    return this->EtherType;
 }
 
-void Profinet::setAnotherField(const char * anotherField)
+void ProfinetFrame::setEtherType(uint16_t EtherType)
 {
-    this->anotherField = anotherField;
+    handleChange();
+    this->EtherType = EtherType;
 }
 
-size_t Profinet::getArrayField2ArraySize() const
+uint16_t ProfinetFrame::getFrameId() const
 {
-    return 10;
+    return this->FrameId;
 }
 
-double Profinet::getArrayField2(size_t k) const
+void ProfinetFrame::setFrameId(uint16_t FrameId)
 {
-    if (k >= 10) throw omnetpp::cRuntimeError("Array of size 10 indexed by %lu", (unsigned long)k);
-    return this->arrayField2[k];
+    handleChange();
+    this->FrameId = FrameId;
 }
 
-void Profinet::setArrayField2(size_t k, double arrayField2)
+size_t ProfinetFrame::getDataArraySize() const
 {
-    if (k >= 10) throw omnetpp::cRuntimeError("Array of size 10 indexed by %lu", (unsigned long)k);
-    this->arrayField2[k] = arrayField2;
+    return 40;
 }
 
-class ProfinetDescriptor : public omnetpp::cClassDescriptor
+uint8_t ProfinetFrame::getData(size_t k) const
+{
+    if (k >= 40) throw omnetpp::cRuntimeError("Array of size 40 indexed by %lu", (unsigned long)k);
+    return this->Data[k];
+}
+
+void ProfinetFrame::setData(size_t k, uint8_t Data)
+{
+    if (k >= 40) throw omnetpp::cRuntimeError("Array of size 40 indexed by %lu", (unsigned long)k);
+    handleChange();
+    this->Data[k] = Data;
+}
+
+uint16_t ProfinetFrame::getCycleCounter() const
+{
+    return this->CycleCounter;
+}
+
+void ProfinetFrame::setCycleCounter(uint16_t CycleCounter)
+{
+    handleChange();
+    this->CycleCounter = CycleCounter;
+}
+
+uint8_t ProfinetFrame::getDataStatus() const
+{
+    return this->DataStatus;
+}
+
+void ProfinetFrame::setDataStatus(uint8_t DataStatus)
+{
+    handleChange();
+    this->DataStatus = DataStatus;
+}
+
+uint8_t ProfinetFrame::getTransferStatus() const
+{
+    return this->TransferStatus;
+}
+
+void ProfinetFrame::setTransferStatus(uint8_t TransferStatus)
+{
+    handleChange();
+    this->TransferStatus = TransferStatus;
+}
+
+class ProfinetFrameDescriptor : public omnetpp::cClassDescriptor
 {
   private:
     mutable const char **propertynames;
     enum FieldConstants {
-        FIELD_someField,
-        FIELD_anotherField,
-        FIELD_arrayField2,
+        FIELD_Vlan,
+        FIELD_EtherType,
+        FIELD_FrameId,
+        FIELD_Data,
+        FIELD_CycleCounter,
+        FIELD_DataStatus,
+        FIELD_TransferStatus,
     };
   public:
-    ProfinetDescriptor();
-    virtual ~ProfinetDescriptor();
+    ProfinetFrameDescriptor();
+    virtual ~ProfinetFrameDescriptor();
 
     virtual bool doesSupport(omnetpp::cObject *obj) const override;
     virtual const char **getPropertyNames() const override;
@@ -319,24 +387,24 @@ class ProfinetDescriptor : public omnetpp::cClassDescriptor
     virtual void *getFieldStructValuePointer(void *object, int field, int i) const override;
 };
 
-Register_ClassDescriptor(ProfinetDescriptor)
+Register_ClassDescriptor(ProfinetFrameDescriptor)
 
-ProfinetDescriptor::ProfinetDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(Profinet)), "")
+ProfinetFrameDescriptor::ProfinetFrameDescriptor() : omnetpp::cClassDescriptor(omnetpp::opp_typename(typeid(ProfinetFrame)), "inet::FieldsChunk")
 {
     propertynames = nullptr;
 }
 
-ProfinetDescriptor::~ProfinetDescriptor()
+ProfinetFrameDescriptor::~ProfinetFrameDescriptor()
 {
     delete[] propertynames;
 }
 
-bool ProfinetDescriptor::doesSupport(omnetpp::cObject *obj) const
+bool ProfinetFrameDescriptor::doesSupport(omnetpp::cObject *obj) const
 {
-    return dynamic_cast<Profinet *>(obj)!=nullptr;
+    return dynamic_cast<ProfinetFrame *>(obj)!=nullptr;
 }
 
-const char **ProfinetDescriptor::getPropertyNames() const
+const char **ProfinetFrameDescriptor::getPropertyNames() const
 {
     if (!propertynames) {
         static const char *names[] = {  nullptr };
@@ -347,19 +415,19 @@ const char **ProfinetDescriptor::getPropertyNames() const
     return propertynames;
 }
 
-const char *ProfinetDescriptor::getProperty(const char *propertyname) const
+const char *ProfinetFrameDescriptor::getProperty(const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : nullptr;
 }
 
-int ProfinetDescriptor::getFieldCount() const
+int ProfinetFrameDescriptor::getFieldCount() const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 3+basedesc->getFieldCount() : 3;
+    return basedesc ? 7+basedesc->getFieldCount() : 7;
 }
 
-unsigned int ProfinetDescriptor::getFieldTypeFlags(int field) const
+unsigned int ProfinetFrameDescriptor::getFieldTypeFlags(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -368,14 +436,18 @@ unsigned int ProfinetDescriptor::getFieldTypeFlags(int field) const
         field -= basedesc->getFieldCount();
     }
     static unsigned int fieldTypeFlags[] = {
-        FD_ISEDITABLE,    // FIELD_someField
-        FD_ISEDITABLE,    // FIELD_anotherField
-        FD_ISARRAY | FD_ISEDITABLE,    // FIELD_arrayField2
+        FD_ISEDITABLE,    // FIELD_Vlan
+        FD_ISEDITABLE,    // FIELD_EtherType
+        FD_ISEDITABLE,    // FIELD_FrameId
+        FD_ISARRAY | FD_ISEDITABLE,    // FIELD_Data
+        FD_ISEDITABLE,    // FIELD_CycleCounter
+        FD_ISEDITABLE,    // FIELD_DataStatus
+        FD_ISEDITABLE,    // FIELD_TransferStatus
     };
-    return (field >= 0 && field < 3) ? fieldTypeFlags[field] : 0;
+    return (field >= 0 && field < 7) ? fieldTypeFlags[field] : 0;
 }
 
-const char *ProfinetDescriptor::getFieldName(int field) const
+const char *ProfinetFrameDescriptor::getFieldName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -384,24 +456,32 @@ const char *ProfinetDescriptor::getFieldName(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldNames[] = {
-        "someField",
-        "anotherField",
-        "arrayField2",
+        "Vlan",
+        "EtherType",
+        "FrameId",
+        "Data",
+        "CycleCounter",
+        "DataStatus",
+        "TransferStatus",
     };
-    return (field >= 0 && field < 3) ? fieldNames[field] : nullptr;
+    return (field >= 0 && field < 7) ? fieldNames[field] : nullptr;
 }
 
-int ProfinetDescriptor::findField(const char *fieldName) const
+int ProfinetFrameDescriptor::findField(const char *fieldName) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount() : 0;
-    if (fieldName[0] == 's' && strcmp(fieldName, "someField") == 0) return base+0;
-    if (fieldName[0] == 'a' && strcmp(fieldName, "anotherField") == 0) return base+1;
-    if (fieldName[0] == 'a' && strcmp(fieldName, "arrayField2") == 0) return base+2;
+    if (fieldName[0] == 'V' && strcmp(fieldName, "Vlan") == 0) return base+0;
+    if (fieldName[0] == 'E' && strcmp(fieldName, "EtherType") == 0) return base+1;
+    if (fieldName[0] == 'F' && strcmp(fieldName, "FrameId") == 0) return base+2;
+    if (fieldName[0] == 'D' && strcmp(fieldName, "Data") == 0) return base+3;
+    if (fieldName[0] == 'C' && strcmp(fieldName, "CycleCounter") == 0) return base+4;
+    if (fieldName[0] == 'D' && strcmp(fieldName, "DataStatus") == 0) return base+5;
+    if (fieldName[0] == 'T' && strcmp(fieldName, "TransferStatus") == 0) return base+6;
     return basedesc ? basedesc->findField(fieldName) : -1;
 }
 
-const char *ProfinetDescriptor::getFieldTypeString(int field) const
+const char *ProfinetFrameDescriptor::getFieldTypeString(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -410,14 +490,18 @@ const char *ProfinetDescriptor::getFieldTypeString(int field) const
         field -= basedesc->getFieldCount();
     }
     static const char *fieldTypeStrings[] = {
-        "int",    // FIELD_someField
-        "string",    // FIELD_anotherField
-        "double",    // FIELD_arrayField2
+        "uint16_t",    // FIELD_Vlan
+        "uint16_t",    // FIELD_EtherType
+        "uint16_t",    // FIELD_FrameId
+        "uint8_t",    // FIELD_Data
+        "uint16_t",    // FIELD_CycleCounter
+        "uint8_t",    // FIELD_DataStatus
+        "uint8_t",    // FIELD_TransferStatus
     };
-    return (field >= 0 && field < 3) ? fieldTypeStrings[field] : nullptr;
+    return (field >= 0 && field < 7) ? fieldTypeStrings[field] : nullptr;
 }
 
-const char **ProfinetDescriptor::getFieldPropertyNames(int field) const
+const char **ProfinetFrameDescriptor::getFieldPropertyNames(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -430,7 +514,7 @@ const char **ProfinetDescriptor::getFieldPropertyNames(int field) const
     }
 }
 
-const char *ProfinetDescriptor::getFieldProperty(int field, const char *propertyname) const
+const char *ProfinetFrameDescriptor::getFieldProperty(int field, const char *propertyname) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -443,7 +527,7 @@ const char *ProfinetDescriptor::getFieldProperty(int field, const char *property
     }
 }
 
-int ProfinetDescriptor::getFieldArraySize(void *object, int field) const
+int ProfinetFrameDescriptor::getFieldArraySize(void *object, int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -451,14 +535,14 @@ int ProfinetDescriptor::getFieldArraySize(void *object, int field) const
             return basedesc->getFieldArraySize(object, field);
         field -= basedesc->getFieldCount();
     }
-    Profinet *pp = (Profinet *)object; (void)pp;
+    ProfinetFrame *pp = (ProfinetFrame *)object; (void)pp;
     switch (field) {
-        case FIELD_arrayField2: return 10;
+        case FIELD_Data: return 40;
         default: return 0;
     }
 }
 
-const char *ProfinetDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
+const char *ProfinetFrameDescriptor::getFieldDynamicTypeString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -466,13 +550,13 @@ const char *ProfinetDescriptor::getFieldDynamicTypeString(void *object, int fiel
             return basedesc->getFieldDynamicTypeString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    Profinet *pp = (Profinet *)object; (void)pp;
+    ProfinetFrame *pp = (ProfinetFrame *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }
 }
 
-std::string ProfinetDescriptor::getFieldValueAsString(void *object, int field, int i) const
+std::string ProfinetFrameDescriptor::getFieldValueAsString(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -480,16 +564,20 @@ std::string ProfinetDescriptor::getFieldValueAsString(void *object, int field, i
             return basedesc->getFieldValueAsString(object,field,i);
         field -= basedesc->getFieldCount();
     }
-    Profinet *pp = (Profinet *)object; (void)pp;
+    ProfinetFrame *pp = (ProfinetFrame *)object; (void)pp;
     switch (field) {
-        case FIELD_someField: return long2string(pp->getSomeField());
-        case FIELD_anotherField: return oppstring2string(pp->getAnotherField());
-        case FIELD_arrayField2: return double2string(pp->getArrayField2(i));
+        case FIELD_Vlan: return ulong2string(pp->getVlan());
+        case FIELD_EtherType: return ulong2string(pp->getEtherType());
+        case FIELD_FrameId: return ulong2string(pp->getFrameId());
+        case FIELD_Data: return ulong2string(pp->getData(i));
+        case FIELD_CycleCounter: return ulong2string(pp->getCycleCounter());
+        case FIELD_DataStatus: return ulong2string(pp->getDataStatus());
+        case FIELD_TransferStatus: return ulong2string(pp->getTransferStatus());
         default: return "";
     }
 }
 
-bool ProfinetDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
+bool ProfinetFrameDescriptor::setFieldValueAsString(void *object, int field, int i, const char *value) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -497,16 +585,20 @@ bool ProfinetDescriptor::setFieldValueAsString(void *object, int field, int i, c
             return basedesc->setFieldValueAsString(object,field,i,value);
         field -= basedesc->getFieldCount();
     }
-    Profinet *pp = (Profinet *)object; (void)pp;
+    ProfinetFrame *pp = (ProfinetFrame *)object; (void)pp;
     switch (field) {
-        case FIELD_someField: pp->setSomeField(string2long(value)); return true;
-        case FIELD_anotherField: pp->setAnotherField((value)); return true;
-        case FIELD_arrayField2: pp->setArrayField2(i,string2double(value)); return true;
+        case FIELD_Vlan: pp->setVlan(string2ulong(value)); return true;
+        case FIELD_EtherType: pp->setEtherType(string2ulong(value)); return true;
+        case FIELD_FrameId: pp->setFrameId(string2ulong(value)); return true;
+        case FIELD_Data: pp->setData(i,string2ulong(value)); return true;
+        case FIELD_CycleCounter: pp->setCycleCounter(string2ulong(value)); return true;
+        case FIELD_DataStatus: pp->setDataStatus(string2ulong(value)); return true;
+        case FIELD_TransferStatus: pp->setTransferStatus(string2ulong(value)); return true;
         default: return false;
     }
 }
 
-const char *ProfinetDescriptor::getFieldStructName(int field) const
+const char *ProfinetFrameDescriptor::getFieldStructName(int field) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -519,7 +611,7 @@ const char *ProfinetDescriptor::getFieldStructName(int field) const
     };
 }
 
-void *ProfinetDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
+void *ProfinetFrameDescriptor::getFieldStructValuePointer(void *object, int field, int i) const
 {
     omnetpp::cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -527,7 +619,7 @@ void *ProfinetDescriptor::getFieldStructValuePointer(void *object, int field, in
             return basedesc->getFieldStructValuePointer(object, field, i);
         field -= basedesc->getFieldCount();
     }
-    Profinet *pp = (Profinet *)object; (void)pp;
+    ProfinetFrame *pp = (ProfinetFrame *)object; (void)pp;
     switch (field) {
         default: return nullptr;
     }

@@ -20,142 +20,21 @@
 #include <math.h>
 
 #include "EthernetAppClient.h"
-#include "Profinet_m.h"
 
-#include "inet/applications/ethernet/EtherApp_m.h"
-#include "inet/common/ModuleAccess.h"
+
+//#include "inet/applications/ethernet/EtherApp_m.h"
+/*#include "inet/common/ModuleAccess.h"
 #include "inet/common/TimeTag_m.h"
-#include "inet/common/packet/Packet.h"
+#include "inet/common/packet/Packet.h"*/
 #include "inet/linklayer/common/Ieee802Ctrl.h"
-#include "inet/linklayer/common/Ieee802SapTag_m.h"
-#include "inet/linklayer/common/MacAddressTag_m.h"
-#include "inet/networklayer/common/L3AddressResolver.h"
-#include "inet/common/ProtocolTag_m.h"
-#include "inet/common/Protocol.h"
+//#include "inet/linklayer/common/Ieee802SapTag_m.h"
+//#include "inet/linklayer/common/MacAddressTag_m.h"
+//#include "inet/networklayer/common/L3AddressResolver.h"
+//#include "inet/common/ProtocolTag_m.h"
+//#include "inet/common/Protocol.h"
 
 namespace inet {
-
 Define_Module(EthernetAppClient);
-
-EthernetAppClient::~EthernetAppClient()
-{
-    cancelAndDelete(timerMsg);
-}
-
-void EthernetAppClient::initialize(int stage)
-{
-    if (stage == INITSTAGE_APPLICATION_LAYER && isGenerator())
-        timerMsg = new cMessage("generateNextPacket");
-
-    ApplicationBase::initialize(stage);
-
-    if (stage == INITSTAGE_LOCAL) {
-        reqLength = &par("reqLength");
-        respLength = &par("respLength");
-        sendInterval = &par("sendInterval");
-
-        localSap = par("localSAP");
-        remoteSap = par("remoteSAP");
-
-        seqNum = 0;
-        WATCH(seqNum);
-
-        // statistics
-        packetsSent = packetsReceived = 0;
-        WATCH(packetsSent);
-        WATCH(packetsReceived);
-
-        startTime = par("startTime");
-        stopTime = par("stopTime");
-        if (stopTime >= SIMTIME_ZERO && stopTime < startTime)
-            throw cRuntimeError("Invalid startTime/stopTime parameters");
-        llcSocket.setOutputGate(gate("out"));
-        llcSocket.setCallback(this);
-    }
-}
-
-void EthernetAppClient::handleMessageWhenUp(cMessage *msg)
-{
-    if (msg->isSelfMessage()) {
-        if (msg->getKind() == START) {
-            EV_DEBUG << getFullPath() << " registering DSAP " << localSap << "\n";
-            llcSocket.open(-1, localSap);
-
-            destMacAddress = resolveDestMacAddress();
-            // if no dest address given, nothing to do
-            if (destMacAddress.isUnspecified())
-                return;
-        }
-        sendPacket();
-        scheduleNextPacket(false);
-    }
-    else
-        llcSocket.processMessage(msg);
-}
-
-void EthernetAppClient::handleStartOperation(LifecycleOperation *operation)
-{
-    if (isGenerator())
-        scheduleNextPacket(true);
-}
-
-void EthernetAppClient::handleStopOperation(LifecycleOperation *operation)
-{
-    cancelNextPacket();
-    llcSocket.close();
-    delayActiveOperationFinish(par("stopOperationTimeout"));
-}
-
-void EthernetAppClient::handleCrashOperation(LifecycleOperation *operation)
-{
-    cancelNextPacket();
-    if (operation->getRootModule() != getContainingNode(this))
-        llcSocket.destroy();
-}
-
-void EthernetAppClient::socketClosed(inet::Ieee8022LlcSocket *socket)
-{
-    if (operationalState == State::STOPPING_OPERATION && !llcSocket.isOpen())
-        startActiveOperationExtraTimeOrFinish(par("stopOperationExtraTime"));
-}
-
-bool EthernetAppClient::isGenerator()
-{
-    return par("destAddress").stringValue()[0];
-}
-
-void EthernetAppClient::scheduleNextPacket(bool start)
-{
-    simtime_t cur = simTime();
-    simtime_t next;
-    if (start) {
-        next = cur <= startTime ? startTime : cur;
-        timerMsg->setKind(START);
-    }
-    else {
-        next = cur + *sendInterval;
-        timerMsg->setKind(NEXT);
-    }
-    if (stopTime < SIMTIME_ZERO || next < stopTime)
-        scheduleAt(next, timerMsg);
-}
-
-void EthernetAppClient::cancelNextPacket()
-{
-    if (timerMsg)
-        cancelEvent(timerMsg);
-}
-
-MacAddress EthernetAppClient::resolveDestMacAddress()
-{
-    MacAddress destMacAddress;
-    const char *destAddress = par("destAddress");
-    if (destAddress[0]) {
-        if (!destMacAddress.tryParse(destAddress))
-            destMacAddress = L3AddressResolver().resolve(destAddress, L3AddressResolver::ADDR_MAC).toMac();
-    }
-    return destMacAddress;
-}
 
 void EthernetAppClient::sendPacket()
 {
@@ -165,7 +44,7 @@ void EthernetAppClient::sendPacket()
     sprintf(msgname, "req-%d-%ld", getId(), seqNum);
     EV_INFO << "Generating packet!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! `" << msgname << "'\n";
 
-    Packet *datapacket = new Packet(msgname);
+    Packet *datapacket = new Packet(msgname, IEEE802CTRL_DATA);
     /*const auto& data = makeShared<EtherAppReq>();
 
     long len = *reqLength;
@@ -195,22 +74,6 @@ void EthernetAppClient::sendPacket()
     llcSocket.send(datapacket);
     packetsSent++;
 }
-
-void EthernetAppClient::socketDataArrived(Ieee8022LlcSocket*, Packet *msg)
-{
-    EV_INFO << "Received packet `" << msg->getName() << "'\n";
-
-    packetsReceived++;
-    emit(packetReceivedSignal, msg);
-    delete msg;
-}
-
-void EthernetAppClient::finish()
-{
-    cancelAndDelete(timerMsg);
-    timerMsg = nullptr;
-}
-
 } // namespace inet
 
 

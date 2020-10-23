@@ -15,7 +15,8 @@
 
 package boh;
 
-import inet.applications.ethernet.EtherAppClient;
+import inet.node.base.NetworkLayerNodeBase;
+import boh.Profinet;
 
 
 //
@@ -24,9 +25,15 @@ import inet.applications.ethernet.EtherAppClient;
 // packets. It generates packets containing ~EtherAppReq chunks. It should
 // be connected directly to ~EtherEncap/~Ieee8022Llc.
 //
-simple EthernetAppClient extends EtherAppClient
+module MyStandardHost extends NetworkLayerNodeBase
 {
-     @class(inet::EthernetAppClient);
-         
+    submodules:
+        profinet: Profinet{
+            parameters:
+                @display("p=825,376;q=queue");
+        }
+        connections allowunconnected:
+        profinet.transportIn <-- nl.out++;
+        profinet.transportOut --> nl.in++;
+        
 }
-

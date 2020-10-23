@@ -18,37 +18,54 @@ package boh;
 
 import inet.networklayer.configurator.ipv4.Ipv4NetworkConfigurator;
 import inet.node.ethernet.Eth100M;
+import inet.node.ethernet.Eth400G;
 import inet.node.ethernet.EtherSwitch;
 import boh.EthernetHost;
 import inet.node.inet.StandardHost;
 import inet.applications.ethernet.EtherAppServer;
 import inet.applications.ethernet.EtherAppClient;
-import boh.ProfinetDevice;
-import inet.node.inet.WirelessHost;
-import inet.node.wireless.AccessPoint;
-import inet.physicallayer.common.packetlevel.RadioMedium;
-
+import inet.node.ethernet.EtherHost;
 
 network VlanExample
 {
+    @display("bgb=614,338");
     submodules:
         configurator: Ipv4NetworkConfigurator {
             @display("p=100,100;is=s");
         }
-        profinetMaster: ProfinetDevice {
-            @display("p=249,313");
+        //host1: StandardHost {
+        //   @display("p=250,100");
+        //}
+        switch1: EtherSwitch {
+            @display("p=400,68");
         }
-        profinetDevice2: ProfinetDevice {
-            @display("p=500,331");
+        //switch2: EtherSwitch {
+        //    @display("p=450,100");
+        //}
+        //host2: MyStandardHost {
+        //    @display("p=550,100");
+        //}
+        host1: EthernetHost {
+            @display("p=481,69");
         }
-        profinetDevice3: ProfinetDevice {
-            @display("p=550,117");
+        host2: EthernetHost {
+            @display("p=469,231");
         }
-        profinetDevice4: ProfinetDevice {
-            @display("p=550,274");
+        Controller_Host: EthernetHost {
+            @display("p=92,172");
+        }
+        switch2: EtherSwitch {
+            @display("p=400,230");
+        }
+        Controller_Switch: EtherSwitch {
+            @display("p=210,171");
         }
     connections:
-        profinetDevice2.ethg++ <--> Eth100M <--> profinetMaster.ethg++;
-        profinetDevice3.ethg++ <--> Eth100M <--> profinetMaster.ethg++;
-        profinetDevice2.ethg++ <--> Eth100M <--> profinetDevice4.ethg++;
+        //host1.ethg++ <--> Eth100M <--> switch1.ethg++;
+        host1.ethg <--> Eth400G {  length = 1.2m; } <--> switch1.ethg++;
+        host2.ethg <--> Eth400G {  length = 1.2m; } <--> switch2.ethg++;
+        Controller_Host.ethg <--> Eth400G {  length = 1.2m; } <--> Controller_Switch.ethg++;
+
+        switch2.ethg++ <--> Eth100M {  length = 3m; } <--> switch1.ethg++;
+        switch2.ethg++ <--> Eth100M {  length = 3m; } <--> Controller_Switch.ethg++;
 }

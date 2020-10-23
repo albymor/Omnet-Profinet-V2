@@ -1,12 +1,12 @@
 #
-# OMNeT++/OMNEST Makefile for $(LIB_PREFIX)boh
+# OMNeT++/OMNEST Makefile for $(LIB_PREFIX)ProfinetRTC1
 #
 # This file was generated with the command:
-#  opp_makemake --make-so -f --deep -pINET -KINET_PROJ=../../inet -DINET_IMPORT -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\)/src -lINET$$\(D\)
+#  opp_makemake --make-so -f --deep -pINET -KINET_PROJ=/home/amorato/omnetpp-5.6/samples/inet -DINET_IMPORT -I$$\(INET_PROJ\)/src -L$$\(INET_PROJ\) -L$$\(INET_PROJ\)/src -lINET$$\(D\)
 #
 
 # Name of target to be created (-o option)
-TARGET = $(LIB_PREFIX)boh$(D)$(SHARED_LIB_SUFFIX)
+TARGET = $(LIB_PREFIX)ProfinetRTC1$(D)$(SHARED_LIB_SUFFIX)
 TARGET_DIR = .
 
 # C++ include paths (with -I)
@@ -16,7 +16,7 @@ INCLUDE_PATH = -I$(INET_PROJ)/src
 EXTRA_OBJS =
 
 # Additional libraries (-L, -l options)
-LIBS = $(LDFLAG_LIBPATH)$(INET_PROJ)/src  -lINET$(D)
+LIBS = $(LDFLAG_LIBPATH)$(INET_PROJ) $(LDFLAG_LIBPATH)$(INET_PROJ)/src  -lINET$(D)
 
 # Output directory
 PROJECT_OUTPUT_DIR = ../out
@@ -24,17 +24,17 @@ PROJECTRELATIVE_PATH = src
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/EthernetAppClient.o $O/Profinet_m.o
+OBJS = $O/EthernetAppClient.o $O/Profinet.o $O/ProfinetPacketSerializer.o $O/ProfinetFrame_m.o
 
 # Message files
 MSGFILES = \
-    Profinet.msg
+    ProfinetFrame.msg
 
 # SM files
 SMFILES =
 
 # Other makefile variables (-K)
-INET_PROJ=../../inet
+INET_PROJ=/home/amorato/omnetpp-5.6/samples/inet
 
 #------------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ include $(CONFIGFILE)
 # Simulation kernel and user interface libraries
 OMNETPP_LIBS = -loppenvir$D $(KERNEL_LIBS) $(SYS_LIBS)
 ifneq ($(TOOLCHAIN_NAME),clangc2)
-LIBS += -Wl,-rpath,$(abspath $(INET_PROJ)/src)
+LIBS += -Wl,-rpath,$(abspath $(INET_PROJ)) -Wl,-rpath,$(abspath $(INET_PROJ)/src)
 endif
 
 COPTS = $(CFLAGS) $(IMPORT_DEFINES) -DINET_IMPORT -DINET_EXPORT $(INCLUDE_PATH) -I$(OMNETPP_INCL_DIR)

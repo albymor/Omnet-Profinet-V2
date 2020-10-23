@@ -14,19 +14,20 @@
 // 
 
 package boh;
+import inet.networklayer.base.NetworkProtocolBase;
 
-import inet.applications.ethernet.EtherAppClient;
-
-
-//
-// A simple traffic generator for the Ethernet model and the 802.11 model,
-// and generally for any L2 model that accepts ~Ieee802SapReq tags on the
-// packets. It generates packets containing ~EtherAppReq chunks. It should
-// be connected directly to ~EtherEncap/~Ieee8022Llc.
-//
-simple EthernetAppClient extends EtherAppClient
-{
-     @class(inet::EthernetAppClient);
-         
+module Profinet extends NetworkProtocolBase{
+   
+    parameters:
+        @signal[packetSent](type=inet::Packet);
+        string destAddress = default("");
+        string srcAddress = default("");
+        bool bootstrap = default(false);
+        int sendTime = default(1000); //tempo inter-frame in us. DEVE ESSERE UN MULTIPLO DI 31.25us
+        bool isMaster = default(false); // indica se il device � un master
+        int sendClockFactor = default(32);
+        int cycleCounter = default(0);
+    
+     @class(Profinet);
 }
 
