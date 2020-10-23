@@ -66,6 +66,6 @@ network VlanExample
         host2.ethg <--> Eth400G {  length = 1.2m; } <--> switch2.ethg++;
         Controller_Host.ethg <--> Eth400G {  length = 1.2m; } <--> Controller_Switch.ethg++;
 
-        switch2.ethg++ <--> Eth100M <--> switch1.ethg++;
-        switch2.ethg++ <--> Eth100MbBer <--> Controller_Switch.ethg++;
+        switch2.ethg++ <--> Eth100M {  length = 3m; } <--> switch1.ethg++;
+        switch2.ethg++ <--> Eth100M {  length = 3m; } <--> Controller_Switch.ethg++;
 }

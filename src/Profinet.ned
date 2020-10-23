@@ -26,6 +26,7 @@ module Profinet extends NetworkProtocolBase{
         int sendTime = default(1000); //tempo inter-frame in us. DEVE ESSERE UN MULTIPLO DI 31.25us
         bool isMaster = default(false); // indica se il device � un master
         int sendClockFactor = default(32);
+        int cycleCounter = default(0);
     
      @class(Profinet);
 }

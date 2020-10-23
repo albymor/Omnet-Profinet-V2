@@ -66,8 +66,7 @@ protected:
 
 private:
     bool isMasterSendScheduled();
-
-
+    long normalizeCycleCounter(long currentCycleCounter);
 
 public:
     virtual void initialize(int stage) override;

@@ -39,6 +39,9 @@ void Profinet::initialize(int stage)
         registerProtocol(inet::Protocol::profinet, gate("queueOut"), nullptr);
     }
     else if (stage == inet::INITSTAGE_LAST){
+
+        cycleCounter = par("cycleCounter"); // Inizializza il cycle counter
+
         if (par("bootstrap")){
             tokenizer = inet::cStringTokenizer(par("destAddress"));  //faccio il parse dei MAC degli slave
             bootstarpSelfMsg = new inet::cMessage("bootstarpSelfMsg");
@@ -49,6 +52,8 @@ void Profinet::initialize(int stage)
         timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
         basicTickTimer = new inet::cMessage("basicTickTimer");
         scheduleAt(timeout, basicTickTimer);
+
+        scheduleAt(inet::simTime() + inet::SimTime(int(par("sendClockFactor"))*31.25*1000, inet::SIMTIME_NS) + inet::SimTime(normal(0,127000), inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
 
 
         llcSocket.setOutputGate(gate("transportOut"));
@@ -94,18 +99,24 @@ void Profinet::handleLowerPacket(inet::Packet *packet){
     frame->setVlan(0xC000);
     frame->setEtherType(0x8892);
     frame->setFrameId(0x8000);
-    frame->setCycleCounter(cycleCounter);
+    frame->setCycleCounter(normalizeCycleCounter(cycleCounter));
     frame->setDataStatus(0x35);
     frame->setTransferStatus(0x00);
     frame->setChunkLength(inet::B(50));
     datapacket->insertAtBack(frame);
 
-    queue.insert(datapacket);
 
-    if(!(bool(par("isMaster")))){
+
+    if((bool(par("isMaster")))){
+        queue.insert(datapacket);
         // TODO: il *2 � il numero di device. serve per non far trasmettere pi� dispositivi nello stesso slot
-        scheduleAt(inet::simTime() + inet::SimTime(int(par("sendTime"))*1000, inet::SIMTIME_NS), new inet::cMessage("sendProfiPacket"));
+
         //scheduleAt(inet::simTime() + inet::SimTime(100, inet::SIMTIME_US), new inet::cMessage("sendProfiPacket"));
+    }
+    else{
+        emit(inet::packetSentSignal, datapacket);
+        llcSocket.send(datapacket);
+
     }
 
 
@@ -146,6 +157,29 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
         cycleCounter++;
     }
 
+    std::string msg = message->getName();
+
+    if (msg == "sendProfiPacket")
+    {
+        EV_INFO << "Self Message: send scheduled Profinet Frame  " << message->getName() << "'\n";
+        long sendTime = int(par("sendClockFactor"))*31.25*1000;
+        long jitter;
+        do{
+            jitter = normal(0,273000);
+        } while(abs(jitter)>sendTime);
+        sendTime += jitter;
+        scheduleAt(inet::simTime() +
+                   inet::SimTime(sendTime, inet::SIMTIME_NS) , new inet::cMessage("sendProfiPacket"));
+        if(!queue.isEmpty()){
+            inet::Packet *datapacket = (inet::Packet *)queue.pop();
+            emit(inet::packetSentSignal, datapacket);
+            llcSocket.send(datapacket);
+        }
+    }
+
+   // + inet::SimTime(normal(0,273000), inet::SIMTIME_NS)
+
+
     if (message == bootstarpSelfMsg){
 
         EV_INFO << "----------------------- bootstrap " << message->getName() << "'\n";
@@ -164,24 +198,16 @@ void Profinet::handleSelfMessage(inet::cMessage *message){
         }
     }
 
-    std::string msg = message->getName();
 
-    if (msg == "sendProfiPacket")
-    {
-        EV_INFO << "************************** sendProfiPacket " << message->getName() << "'\n";
-        inet::Packet *datapacket = (inet::Packet *)queue.pop();
-        emit(inet::packetSentSignal, datapacket);
-        llcSocket.send(datapacket);
-    }
 
-    if(bool(par("isMaster")) && isMasterSendScheduled()){
+ /*   if(bool(par("isMaster")) && isMasterSendScheduled()){
         EV_WARN << " Master send scheduled\n";
         if(!queue.isEmpty()){
             inet::Packet *datapacket = (inet::Packet *)queue.pop();
             emit(inet::packetSentSignal, datapacket);
             llcSocket.send(datapacket);
         }
-    }
+    }*/
 
 
 
@@ -213,7 +239,7 @@ void Profinet::genericSend(inet::MacAddress src, inet::MacAddress dest){
     frame->setVlan(0xC000);
     frame->setEtherType(0x8892);
     frame->setFrameId(0x8000);
-    frame->setCycleCounter(cycleCounter);
+    frame->setCycleCounter(normalizeCycleCounter(cycleCounter));
     frame->setDataStatus(0x35);
     frame->setTransferStatus(0x00);
     frame->setChunkLength(inet::B(50));
@@ -236,6 +262,33 @@ bool Profinet::isMasterSendScheduled(){
     return ((cycleCounter % mult) == 0);
 }
 
+long Profinet::normalizeCycleCounter(long currentCycleCounter){
+    return (currentCycleCounter/long(par("sendClockFactor")))*long(par("sendClockFactor"));
+}
 
+/*
+void Profinet::handleSelfMessage(inet::cMessage *message){
+
+    if(message == basicTickTimer){   // Increment the cycle counter
+        timeout = (inet::simTime() + inet::SimTime(31250, inet::SIMTIME_NS));
+        basicTickTimer = new inet::cMessage("basicTickTimer");
+        scheduleAt(timeout, basicTickTimer);
+        cycleCounter++;
+    }
+
+    std::string msg = message->getName();
+    if (msg == "sendProfiPacket"){   // Send and schedule the next Profinet frame
+        long sendTime = int(par("sendClockFactor"))*31.25*1000 + normal(0,273000);
+        scheduleAt(inet::simTime() +
+                   inet::SimTime(sendTime, inet::SIMTIME_NS),
+                   new inet::cMessage("sendProfiPacket"));
+        if(!queue.isEmpty()){
+            inet::Packet *datapacket = (inet::Packet *)queue.pop();
+            emit(inet::packetSentSignal, datapacket);
+            llcSocket.send(datapacket);
+        }
+    }
+}
+*/
 //}
 //}
